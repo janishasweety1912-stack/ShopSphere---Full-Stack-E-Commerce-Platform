@@ -26,7 +26,7 @@ function AdminProducts(){
     try{
 
       const response=await fetch(
-        "http://localhost:5000/api/products"
+        "https://shopsphere-full-stack-e-commerce-platform.onrender.com"
       );
 
       const data=await response.json();
@@ -72,7 +72,7 @@ function AdminProducts(){
 
 
       const response=await fetch(
-        `http://localhost:5000/api/products/${id}`,
+        `https://shopsphere-full-stack-e-commerce-platform.onrender.com${id}`,
         {
           method:"DELETE",
           headers:{

@@ -36,7 +36,7 @@ function EditProduct(){
       try{
 
         const response=await fetch(
-          `http://localhost:5000/api/products/${id}`
+          `https://shopsphere-full-stack-e-commerce-platform.onrender.com${id}`
         );
 
         const data=await response.json();
@@ -84,7 +84,7 @@ function EditProduct(){
 
 
       const response=await fetch(
-        `http://localhost:5000/api/products/${id}`,
+        `https://shopsphere-full-stack-e-commerce-platform.onrender.com${id}`,
         {
           method:"PUT",
           headers:{
