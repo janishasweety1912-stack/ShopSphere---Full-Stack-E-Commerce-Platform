@@ -2,73 +2,61 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
-function AdminLogin(){
+function AdminLogin() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [email,setEmail]=useState("");
-  const [password,setPassword]=useState("");
-  const [error,setError]=useState("");
+  const navigate = useNavigate();
 
-  const navigate=useNavigate();
-
-
-  const handleLogin=async(e)=>{
-
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    try{
+    setError("");
 
-      const response=await fetch(
-        "http://https://shopsphere-full-stack-e-commerce-platform.onrender.com",
+    if (!email || !password) {
+      setError("Please enter email and password");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "https://shopsphere-full-stack-e-commerce-platform.onrender.com/api/admin/login",
         {
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json"
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-          body:JSON.stringify({
+          body: JSON.stringify({
             email,
-            password
-          })
+            password,
+          }),
         }
       );
 
+      const data = await response.json();
 
-      const data=await response.json();
-
-
-      if(!response.ok){
-
-        setError(data.message);
+      if (!response.ok) {
+        setError(data.message || "Invalid admin credentials");
         return;
-
       }
 
-
-      localStorage.setItem(
-        "adminToken",
-        data.token
-      );
-
-
-      localStorage.setItem(
-        "admin",
-        JSON.stringify(data.admin)
-      );
-
+      localStorage.setItem("adminToken", data.token);
+      localStorage.setItem("admin", JSON.stringify(data.admin));
 
       navigate("/admin/dashboard");
-
-
-    }catch(error){
-
-      setError("Something went wrong");
-
+    } catch (error) {
+      console.error("Admin login error:", error);
+      setError("Unable to connect to server. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
   };
 
-
-  return(
-
+  return (
     <div className="
       min-h-screen
       bg-[#020617]
@@ -77,7 +65,6 @@ function AdminLogin(){
       justify-center
       px-6
     ">
-
 
       <div className="
         w-full
@@ -89,7 +76,6 @@ function AdminLogin(){
         border
         border-gray-800
       ">
-
 
         <div className="
           flex
@@ -108,14 +94,13 @@ function AdminLogin(){
             items-center
             justify-center
             text-[#020617]
+            shadow-lg
+            shadow-purple-500/20
           ">
-
-            <ShieldCheck size={32}/>
-
+            <ShieldCheck size={32} />
           </div>
 
         </div>
-
 
 
         <h1 className="
@@ -138,29 +123,31 @@ function AdminLogin(){
         </h2>
 
 
-
-        {
-          error && (
-
+        {error && (
+          <div className="
+            bg-red-500/10
+            border
+            border-red-500/20
+            rounded-xl
+            px-4
+            py-3
+            mb-5
+          ">
             <p className="
               text-red-400
               text-center
-              mb-5
               text-sm
             ">
               {error}
             </p>
-
-          )
-        }
-
+          </div>
+        )}
 
 
         <form
           onSubmit={handleLogin}
           className="space-y-5"
         >
-
 
           <div>
 
@@ -173,12 +160,12 @@ function AdminLogin(){
               Email Address
             </label>
 
-
             <input
               type="email"
               value={email}
-              onChange={(e)=>setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@shopsphere.com"
+              required
               className="
                 w-full
                 bg-[#020617]
@@ -197,7 +184,6 @@ function AdminLogin(){
           </div>
 
 
-
           <div>
 
             <label className="
@@ -209,12 +195,12 @@ function AdminLogin(){
               Password
             </label>
 
-
             <input
               type="password"
               value={password}
-              onChange={(e)=>setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
+              required
               className="
                 w-full
                 bg-[#020617]
@@ -233,10 +219,9 @@ function AdminLogin(){
           </div>
 
 
-
-
           <button
             type="submit"
+            disabled={loading}
             className="
               w-full
               py-3
@@ -248,23 +233,19 @@ function AdminLogin(){
               to-purple-500
               hover:opacity-90
               transition
+              disabled:opacity-50
+              disabled:cursor-not-allowed
             "
           >
-            Login
+            {loading ? "Signing in..." : "Login"}
           </button>
-
 
         </form>
 
-
       </div>
 
-
     </div>
-
   );
-
 }
-
 
 export default AdminLogin;
