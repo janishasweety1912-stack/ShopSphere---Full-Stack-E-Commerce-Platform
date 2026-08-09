@@ -21,6 +21,7 @@ function AdminAddProduct() {
     brand: "",
     category: "",
     subCategory: "",
+    productType: "",
     price: "",
     discount: "0",
     rating: "0",
@@ -148,7 +149,8 @@ function AdminAddProduct() {
       !formData.name.trim() ||
       !formData.brand.trim() ||
       !formData.category.trim() ||
-      !formData.subCategory.trim()
+      !formData.subCategory.trim() ||
+      !formData.productType.trim()
     ) {
       showToast(
         "Please fill all required fields",
@@ -211,9 +213,7 @@ function AdminAddProduct() {
       // ==========================================
 
       const token =
-        localStorage.getItem(
-          "adminToken"
-        );
+        localStorage.getItem("adminToken");
 
       if (!token) {
         throw new Error(
@@ -246,6 +246,9 @@ function AdminAddProduct() {
 
               subCategory:
                 formData.subCategory.trim(),
+
+              productType:
+                formData.productType.trim(),
 
               price:
                 Number(formData.price),
@@ -312,11 +315,6 @@ function AdminAddProduct() {
 
   return (
     <>
-      <AdminToast
-        message={toast.message}
-        type={toast.type}
-      />
-
       <div
         className="
           min-h-screen
@@ -326,6 +324,7 @@ function AdminAddProduct() {
           to-purple-950/20
         "
       >
+
         {/* ================================
             HEADER
         ================================= */}
@@ -338,6 +337,7 @@ function AdminAddProduct() {
             mb-8
           "
         >
+
           <button
             type="button"
             onClick={() =>
@@ -363,6 +363,7 @@ function AdminAddProduct() {
           </button>
 
           <div>
+
             <div
               className="
                 flex
@@ -370,6 +371,7 @@ function AdminAddProduct() {
                 gap-3
               "
             >
+
               <div
                 className="
                   w-11
@@ -396,6 +398,7 @@ function AdminAddProduct() {
               >
                 Add Product
               </h1>
+
             </div>
 
             <p
@@ -406,7 +409,9 @@ function AdminAddProduct() {
             >
               Add a new product to ShopSphere
             </p>
+
           </div>
+
         </div>
 
         {/* ================================
@@ -422,6 +427,7 @@ function AdminAddProduct() {
             gap-6
           "
         >
+
           {/* ================================
               PRODUCT IMAGE
           ================================= */}
@@ -437,6 +443,7 @@ function AdminAddProduct() {
               h-fit
             "
           >
+
             <h2
               className="
                 text-lg
@@ -449,6 +456,7 @@ function AdminAddProduct() {
             </h2>
 
             <label className="block cursor-pointer">
+
               <div
                 className="
                   aspect-square
@@ -465,7 +473,9 @@ function AdminAddProduct() {
                   transition
                 "
               >
+
                 {imagePreview ? (
+
                   <img
                     src={imagePreview}
                     alt="Product preview"
@@ -475,13 +485,16 @@ function AdminAddProduct() {
                       object-cover
                     "
                   />
+
                 ) : (
+
                   <div
                     className="
                       text-center
                       px-6
                     "
                   >
+
                     <ImageIcon
                       size={48}
                       className="
@@ -509,8 +522,11 @@ function AdminAddProduct() {
                     >
                       PNG, JPG or WEBP
                     </p>
+
                   </div>
+
                 )}
+
               </div>
 
               <input
@@ -519,6 +535,7 @@ function AdminAddProduct() {
                 onChange={handleImageChange}
                 className="hidden"
               />
+
             </label>
 
             {imageFile && (
@@ -532,6 +549,7 @@ function AdminAddProduct() {
                   text-gray-400
                 "
               >
+
                 <Upload
                   size={16}
                   className="text-cyan-400"
@@ -540,8 +558,10 @@ function AdminAddProduct() {
                 <span className="truncate">
                   {imageFile.name}
                 </span>
+
               </div>
             )}
+
           </div>
 
           {/* ================================
@@ -558,6 +578,7 @@ function AdminAddProduct() {
               p-6
             "
           >
+
             <h2
               className="
                 text-lg
@@ -577,9 +598,11 @@ function AdminAddProduct() {
                 gap-5
               "
             >
+
               {/* NAME */}
 
               <div className="md:col-span-2">
+
                 <label
                   className="
                     block
@@ -600,11 +623,13 @@ function AdminAddProduct() {
                   className="admin-input"
                   required
                 />
+
               </div>
 
               {/* BRAND */}
 
               <div>
+
                 <label
                   className="
                     block
@@ -625,11 +650,13 @@ function AdminAddProduct() {
                   className="admin-input"
                   required
                 />
+
               </div>
 
               {/* CATEGORY */}
 
               <div>
+
                 <label
                   className="
                     block
@@ -650,11 +677,13 @@ function AdminAddProduct() {
                   className="admin-input"
                   required
                 />
+
               </div>
 
               {/* SUB CATEGORY */}
 
               <div>
+
                 <label
                   className="
                     block
@@ -671,15 +700,44 @@ function AdminAddProduct() {
                   name="subCategory"
                   value={formData.subCategory}
                   onChange={handleChange}
-                  placeholder="e.g. Shoes"
+                  placeholder="e.g. Footwear"
                   className="admin-input"
                   required
                 />
+
+              </div>
+
+              {/* PRODUCT TYPE */}
+
+              <div>
+
+                <label
+                  className="
+                    block
+                    text-sm
+                    text-gray-300
+                    mb-2
+                  "
+                >
+                  Product Type *
+                </label>
+
+                <input
+                  type="text"
+                  name="productType"
+                  value={formData.productType}
+                  onChange={handleChange}
+                  placeholder="e.g. Sneakers"
+                  className="admin-input"
+                  required
+                />
+
               </div>
 
               {/* PRICE */}
 
               <div>
+
                 <label
                   className="
                     block
@@ -701,11 +759,13 @@ function AdminAddProduct() {
                   className="admin-input"
                   required
                 />
+
               </div>
 
               {/* DISCOUNT */}
 
               <div>
+
                 <label
                   className="
                     block
@@ -727,11 +787,13 @@ function AdminAddProduct() {
                   placeholder="0"
                   className="admin-input"
                 />
+
               </div>
 
               {/* RATING */}
 
               <div>
+
                 <label
                   className="
                     block
@@ -754,11 +816,13 @@ function AdminAddProduct() {
                   placeholder="0"
                   className="admin-input"
                 />
+
               </div>
 
               {/* STOCK */}
 
               <div>
+
                 <label
                   className="
                     block
@@ -779,11 +843,13 @@ function AdminAddProduct() {
                   placeholder="0"
                   className="admin-input"
                 />
+
               </div>
 
               {/* COLORS */}
 
               <div className="md:col-span-2">
+
                 <label
                   className="
                     block
@@ -796,6 +862,7 @@ function AdminAddProduct() {
                 </label>
 
                 <div className="flex gap-3">
+
                   <input
                     type="text"
                     value={colorInput}
@@ -835,6 +902,7 @@ function AdminAddProduct() {
                   >
                     <Plus size={20} />
                   </button>
+
                 </div>
 
                 {colors.length > 0 && (
@@ -846,6 +914,7 @@ function AdminAddProduct() {
                       mt-3
                     "
                   >
+
                     {colors.map((color) => (
                       <span
                         key={color}
@@ -863,6 +932,7 @@ function AdminAddProduct() {
                           text-sm
                         "
                       >
+
                         {color}
 
                         <button
@@ -876,15 +946,19 @@ function AdminAddProduct() {
                         >
                           <X size={14} />
                         </button>
+
                       </span>
                     ))}
+
                   </div>
                 )}
+
               </div>
 
               {/* DESCRIPTION */}
 
               <div className="md:col-span-2">
+
                 <label
                   className="
                     block
@@ -909,7 +983,9 @@ function AdminAddProduct() {
                     resize-none
                   "
                 />
+
               </div>
+
             </div>
 
             {/* ================================
@@ -927,6 +1003,7 @@ function AdminAddProduct() {
                 border-gray-800
               "
             >
+
               <button
                 type="button"
                 onClick={() =>
@@ -968,6 +1045,7 @@ function AdminAddProduct() {
                   transition
                 "
               >
+
                 {loading ? (
                   <>
                     <span
@@ -991,10 +1069,15 @@ function AdminAddProduct() {
                     Add Product
                   </>
                 )}
+
               </button>
+
             </div>
+
           </div>
+
         </form>
+
       </div>
 
       {/* ================================
@@ -1024,6 +1107,11 @@ function AdminAddProduct() {
             rgba(34, 211, 238, 0.15);
         }
       `}</style>
+
+      <AdminToast
+        message={toast.message}
+        type={toast.type}
+      />
     </>
   );
 }

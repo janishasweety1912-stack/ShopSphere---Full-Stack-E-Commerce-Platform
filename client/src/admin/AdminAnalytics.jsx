@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   BarChart3,
-  DollarSign,
+  IndianRupee,
   ShoppingCart,
   Users,
   Package,
@@ -233,13 +233,19 @@ function AdminAnalytics() {
     return null;
   }
 
-  const {
-    summary,
-    orderStatus,
-    monthlyAnalytics,
-    topProducts,
-    paymentMethods,
-  } = analytics;
+  const summary = analytics.summary || analytics.stats || {};
+
+  const orderStatus = analytics.orderStatus || {
+    orderPlaced: analytics.stats?.pendingOrders || 0,
+    pending: analytics.stats?.pendingOrders || 0,
+    shipped: analytics.stats?.shippedOrders || 0,
+    delivered: analytics.stats?.deliveredOrders || 0,
+    cancelled: analytics.stats?.cancelledOrders || 0,
+  };
+
+  const monthlyAnalytics = analytics.monthlyAnalytics || [];
+  const topProducts = analytics.topProducts || [];
+  const paymentMethods = analytics.paymentMethods || {};
 
   // =====================================================
   // STATUS DATA
@@ -409,7 +415,7 @@ function AdminAnalytics() {
                 justify-center
               "
             >
-              <DollarSign
+              <IndianRupee
                 size={22}
                 className="text-emerald-400"
               />

@@ -18,11 +18,106 @@ function AdminEditProduct() {
   const API_URL =
     "https://shopsphere-full-stack-e-commerce-platform.onrender.com";
 
+  // =====================================================
+  // CATEGORY STRUCTURE
+  // =====================================================
+
+  const categoryOptions = {
+    Men: {
+      Shoes: [
+        "Sneakers",
+        "Sports Shoes",
+        "Formal Shoes",
+        "Casual Shoes",
+        "Boots",
+      ],
+      Clothing: [
+        "T-Shirts",
+        "Shirts",
+        "Jeans",
+        "Trousers",
+        "Jackets",
+      ],
+      Accessories: [
+        "Watches",
+        "Belts",
+        "Wallets",
+        "Sunglasses",
+      ],
+    },
+
+    Women: {
+      Shoes: [
+        "Heels",
+        "Sneakers",
+        "Flats",
+        "Sandals",
+        "Boots",
+      ],
+      Clothing: [
+        "Dresses",
+        "Tops",
+        "Jeans",
+        "Skirts",
+        "Jackets",
+      ],
+      Accessories: [
+        "Handbags",
+        "Watches",
+        "Jewellery",
+        "Sunglasses",
+      ],
+    },
+
+    Electronics: {
+      Mobiles: [
+        "Smartphones",
+        "Feature Phones",
+      ],
+      Laptops: [
+        "Gaming Laptops",
+        "Business Laptops",
+        "Student Laptops",
+      ],
+      Accessories: [
+        "Headphones",
+        "Chargers",
+        "Power Banks",
+        "Keyboards",
+        "Mouse",
+      ],
+    },
+
+    Footwear: {
+      Sports: [
+        "Running Shoes",
+        "Training Shoes",
+        "Cricket Shoes",
+        "Football Shoes",
+      ],
+      Casual: [
+        "Sneakers",
+        "Loafers",
+        "Canvas Shoes",
+      ],
+      Formal: [
+        "Formal Shoes",
+        "Oxford Shoes",
+        "Derby Shoes",
+      ],
+    },
+  };
+
+  // =====================================================
+  // PRODUCT STATE
+  // =====================================================
+
   const [product, setProduct] = useState({
     name: "",
     brand: "",
     category: "",
     subCategory: "",
+    productType: "",
     price: "",
     discount: "0",
     rating: "0",
@@ -44,6 +139,31 @@ function AdminEditProduct() {
     message: "",
     type: "",
   });
+
+  // =====================================================
+  // AVAILABLE SUB CATEGORIES
+  // =====================================================
+
+  const availableSubCategories =
+    product.category &&
+    categoryOptions[product.category]
+      ? Object.keys(categoryOptions[product.category])
+      : [];
+
+  // =====================================================
+  // AVAILABLE PRODUCT TYPES
+  // =====================================================
+
+  const availableProductTypes =
+    product.category &&
+    product.subCategory &&
+    categoryOptions[product.category]?.[
+      product.subCategory
+    ]
+      ? categoryOptions[product.category][
+          product.subCategory
+        ]
+      : [];
 
   // =====================================================
   // TOAST
@@ -80,7 +200,8 @@ function AdminEditProduct() {
 
         if (!response.ok) {
           throw new Error(
-            data.message || "Failed to load product"
+            data.message ||
+              "Failed to load product"
           );
         }
 
@@ -89,6 +210,7 @@ function AdminEditProduct() {
           brand: data.brand || "",
           category: data.category || "",
           subCategory: data.subCategory || "",
+          productType: data.productType || "",
           price: data.price ?? "",
           discount: data.discount ?? "0",
           rating: data.rating ?? "0",
@@ -98,12 +220,19 @@ function AdminEditProduct() {
         });
 
         setColors(data.colors || []);
-        setImagePreview(data.image || "");
+
+        setImagePreview(
+          data.image || ""
+        );
       } catch (error) {
-        console.error("Fetch product error:", error);
+        console.error(
+          "Fetch product error:",
+          error
+        );
 
         showToast(
-          error.message || "Failed to load product",
+          error.message ||
+            "Failed to load product",
           "error"
         );
       } finally {
@@ -125,6 +254,29 @@ function AdminEditProduct() {
       ...previous,
       [name]: value,
     }));
+
+    // When category changes,
+    // reset sub category and product type
+
+    if (name === "category") {
+      setProduct((previous) => ({
+        ...previous,
+        category: value,
+        subCategory: "",
+        productType: "",
+      }));
+    }
+
+    // When sub category changes,
+    // reset product type
+
+    if (name === "subCategory") {
+      setProduct((previous) => ({
+        ...previous,
+        subCategory: value,
+        productType: "",
+      }));
+    }
   };
 
   // =====================================================
@@ -191,7 +343,8 @@ function AdminEditProduct() {
   const removeColor = (colorToRemove) => {
     setColors((previous) =>
       previous.filter(
-        (color) => color !== colorToRemove
+        (color) =>
+          color !== colorToRemove
       )
     );
   };
@@ -206,8 +359,9 @@ function AdminEditProduct() {
     if (
       !product.name.trim() ||
       !product.brand.trim() ||
-      !product.category.trim() ||
-      !product.subCategory.trim()
+      !product.category ||
+      !product.subCategory ||
+      !product.productType
     ) {
       showToast(
         "Please fill all required fields",
@@ -246,13 +400,14 @@ function AdminEditProduct() {
           imageFile
         );
 
-        const uploadResponse = await fetch(
-          `${API_URL}/api/upload`,
-          {
-            method: "POST",
-            body: imageData,
-          }
-        );
+        const uploadResponse =
+          await fetch(
+            `${API_URL}/api/upload`,
+            {
+              method: "POST",
+              body: imageData,
+            }
+          );
 
         const uploadResult =
           await uploadResponse.json();
@@ -307,10 +462,13 @@ function AdminEditProduct() {
               product.brand.trim(),
 
             category:
-              product.category.trim(),
+              product.category,
 
             subCategory:
-              product.subCategory.trim(),
+              product.subCategory,
+
+            productType:
+              product.productType,
 
             price:
               Number(product.price),
@@ -344,6 +502,10 @@ function AdminEditProduct() {
         );
       }
 
+      // =================================================
+      // SUCCESS
+      // =================================================
+
       showToast(
         "Product updated successfully",
         "success"
@@ -352,7 +514,6 @@ function AdminEditProduct() {
       setTimeout(() => {
         navigate("/admin/products");
       }, 1000);
-
     } catch (error) {
       console.error(
         "Update product error:",
@@ -364,7 +525,6 @@ function AdminEditProduct() {
           "Something went wrong",
         "error"
       );
-
     } finally {
       setLoading(false);
     }
@@ -384,7 +544,6 @@ function AdminEditProduct() {
         justify-center
       ">
         <div className="text-center">
-
           <div className="
             w-10
             h-10
@@ -402,7 +561,6 @@ function AdminEditProduct() {
           ">
             Loading product...
           </p>
-
         </div>
       </div>
     );
@@ -414,11 +572,6 @@ function AdminEditProduct() {
 
   return (
     <>
-      <AdminToast
-        message={toast.message}
-        type={toast.type}
-      />
-
       <div className="
         min-h-screen
         bg-gradient-to-br
@@ -427,7 +580,9 @@ function AdminEditProduct() {
         to-purple-950/20
       ">
 
-        {/* HEADER */}
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="
           flex
@@ -439,7 +594,9 @@ function AdminEditProduct() {
           <button
             type="button"
             onClick={() =>
-              navigate("/admin/products")
+              navigate(
+                "/admin/products"
+              )
             }
             className="
               w-10
@@ -477,14 +634,12 @@ function AdminEditProduct() {
                 items-center
                 justify-center
               ">
-
                 <Package
                   size={22}
                   className="
                     text-purple-400
                   "
                 />
-
               </div>
 
               <h1 className="
@@ -501,15 +656,16 @@ function AdminEditProduct() {
               text-gray-400
               mt-2
             ">
-              Update your ShopSphere product
-              details
+              Update your ShopSphere
+              product details
             </p>
 
           </div>
-
         </div>
 
-        {/* FORM */}
+        {/* =================================================
+            FORM
+        ================================================= */}
 
         <form
           onSubmit={handleSubmit}
@@ -521,7 +677,9 @@ function AdminEditProduct() {
           "
         >
 
-          {/* IMAGE */}
+          {/* =================================================
+              PRODUCT IMAGE
+          ================================================= */}
 
           <div className="
             xl:col-span-1
@@ -645,13 +803,16 @@ function AdminEditProduct() {
               text-gray-500
               mt-4
             ">
-              Select a new image only if you
-              want to replace the existing one.
+              Select a new image only if
+              you want to replace the
+              existing one.
             </p>
 
           </div>
 
-          {/* PRODUCT DETAILS */}
+          {/* =================================================
+              PRODUCT DETAILS
+          ================================================= */}
 
           <div className="
             xl:col-span-2
@@ -691,6 +852,7 @@ function AdminEditProduct() {
                   name="name"
                   value={product.name}
                   onChange={handleChange}
+                  placeholder="Enter product name"
                   className="admin-input"
                   required
                 />
@@ -710,6 +872,7 @@ function AdminEditProduct() {
                   name="brand"
                   value={product.brand}
                   onChange={handleChange}
+                  placeholder="e.g. Nike"
                   className="admin-input"
                   required
                 />
@@ -724,14 +887,34 @@ function AdminEditProduct() {
                   Category *
                 </label>
 
-                <input
-                  type="text"
+                <select
                   name="category"
                   value={product.category}
                   onChange={handleChange}
                   className="admin-input"
                   required
-                />
+                >
+
+                  <option
+                    value=""
+                    className="bg-[#020617]"
+                  >
+                    Select Category
+                  </option>
+
+                  {Object.keys(
+                    categoryOptions
+                  ).map((category) => (
+                    <option
+                      key={category}
+                      value={category}
+                      className="bg-[#020617]"
+                    >
+                      {category}
+                    </option>
+                  ))}
+
+                </select>
 
               </div>
 
@@ -743,14 +926,87 @@ function AdminEditProduct() {
                   Sub Category *
                 </label>
 
-                <input
-                  type="text"
+                <select
                   name="subCategory"
                   value={product.subCategory}
                   onChange={handleChange}
-                  className="admin-input"
+                  disabled={
+                    !product.category
+                  }
+                  className="
+                    admin-input
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
                   required
-                />
+                >
+
+                  <option
+                    value=""
+                    className="bg-[#020617]"
+                  >
+                    Select Sub Category
+                  </option>
+
+                  {availableSubCategories.map(
+                    (subCategory) => (
+                      <option
+                        key={subCategory}
+                        value={subCategory}
+                        className="bg-[#020617]"
+                      >
+                        {subCategory}
+                      </option>
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+              {/* PRODUCT TYPE */}
+
+              <div>
+
+                <label className="admin-label">
+                  Product Type *
+                </label>
+
+                <select
+                  name="productType"
+                  value={product.productType}
+                  onChange={handleChange}
+                  disabled={
+                    !product.subCategory
+                  }
+                  className="
+                    admin-input
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                  required
+                >
+
+                  <option
+                    value=""
+                    className="bg-[#020617]"
+                  >
+                    Select Product Type
+                  </option>
+
+                  {availableProductTypes.map(
+                    (productType) => (
+                      <option
+                        key={productType}
+                        value={productType}
+                        className="bg-[#020617]"
+                      >
+                        {productType}
+                      </option>
+                    )
+                  )}
+
+                </select>
 
               </div>
 
@@ -768,6 +1024,7 @@ function AdminEditProduct() {
                   min="0"
                   value={product.price}
                   onChange={handleChange}
+                  placeholder="Enter price"
                   className="admin-input"
                   required
                 />
@@ -789,6 +1046,7 @@ function AdminEditProduct() {
                   max="100"
                   value={product.discount}
                   onChange={handleChange}
+                  placeholder="0"
                   className="admin-input"
                 />
 
@@ -810,6 +1068,7 @@ function AdminEditProduct() {
                   step="0.1"
                   value={product.rating}
                   onChange={handleChange}
+                  placeholder="0"
                   className="admin-input"
                 />
 
@@ -829,6 +1088,7 @@ function AdminEditProduct() {
                   min="0"
                   value={product.stock}
                   onChange={handleChange}
+                  placeholder="0"
                   className="admin-input"
                 />
 
@@ -856,7 +1116,9 @@ function AdminEditProduct() {
                       )
                     }
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (
+                        e.key === "Enter"
+                      ) {
                         e.preventDefault();
                         addColor();
                       }
@@ -895,40 +1157,44 @@ function AdminEditProduct() {
                     mt-3
                   ">
 
-                    {colors.map((color) => (
-                      <span
-                        key={color}
-                        className="
-                          flex
-                          items-center
-                          gap-2
-                          px-3
-                          py-1.5
-                          rounded-lg
-                          bg-cyan-400/10
-                          border
-                          border-cyan-400/20
-                          text-cyan-400
-                          text-sm
-                        "
-                      >
-
-                        {color}
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeColor(color)
-                          }
+                    {colors.map(
+                      (color) => (
+                        <span
+                          key={color}
                           className="
-                            hover:text-red-400
+                            flex
+                            items-center
+                            gap-2
+                            px-3
+                            py-1.5
+                            rounded-lg
+                            bg-cyan-400/10
+                            border
+                            border-cyan-400/20
+                            text-cyan-400
+                            text-sm
                           "
                         >
-                          <X size={14} />
-                        </button>
 
-                      </span>
-                    ))}
+                          {color}
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeColor(
+                                color
+                              )
+                            }
+                            className="
+                              hover:text-red-400
+                            "
+                          >
+                            <X size={14} />
+                          </button>
+
+                        </span>
+                      )
+                    )}
 
                   </div>
                 )}
@@ -945,8 +1211,11 @@ function AdminEditProduct() {
 
                 <textarea
                   name="description"
-                  value={product.description}
+                  value={
+                    product.description
+                  }
                   onChange={handleChange}
+                  placeholder="Enter product description..."
                   rows="5"
                   className="
                     admin-input
@@ -958,7 +1227,9 @@ function AdminEditProduct() {
 
             </div>
 
-            {/* BUTTONS */}
+            {/* =================================================
+                BUTTONS
+            ================================================= */}
 
             <div className="
               flex
@@ -973,7 +1244,9 @@ function AdminEditProduct() {
               <button
                 type="button"
                 onClick={() =>
-                  navigate("/admin/products")
+                  navigate(
+                    "/admin/products"
+                  )
                 }
                 className="
                   px-5
@@ -1027,6 +1300,7 @@ function AdminEditProduct() {
                 ) : (
                   <>
                     <Save size={20} />
+
                     Update Product
                   </>
                 )}
@@ -1040,6 +1314,19 @@ function AdminEditProduct() {
         </form>
 
       </div>
+
+      {/* =================================================
+          TOAST
+      ================================================= */}
+
+      <AdminToast
+        message={toast.message}
+        type={toast.type}
+      />
+
+      {/* =================================================
+          INPUT STYLES
+      ================================================= */}
 
       <style>{`
         .admin-label {
@@ -1066,7 +1353,14 @@ function AdminEditProduct() {
 
         .admin-input:focus {
           border-color: #22d3ee;
-          box-shadow: 0 0 0 1px rgba(34,211,238,0.15);
+          box-shadow:
+            0 0 0 1px
+            rgba(34, 211, 238, 0.15);
+        }
+
+        .admin-input option {
+          background: #020617;
+          color: white;
         }
       `}</style>
     </>
