@@ -29,9 +29,6 @@ function Products() {
 
         const data = await response.json();
 
-        console.log("PRODUCT API RESPONSE:", data);
-        console.log("PRODUCT COUNT:", data.length);
-
         if (!response.ok) {
           throw new Error(
             data.message || "Failed to fetch products"
